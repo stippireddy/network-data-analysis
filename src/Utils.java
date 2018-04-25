@@ -39,4 +39,9 @@ public class Utils {
 		int hashCode = input.hashCode() % maxNum;
 		return hashCode < 0 ? hashCode + maxNum : hashCode;
 	}
+	
+	public static int getHashcodeInRange(Long input, int maxNum) {
+		int hashCode = input.hashCode() % maxNum;
+		return hashCode < 0 ? hashCode + maxNum : hashCode;
+	}
 }

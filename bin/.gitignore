@@ -3,3 +3,7 @@
 /Utils.class
 /VirtualBitMap.class
 /VirtualFM.class
+/BloomFilter.class
+/CountMin.class
+/Sour.class
+/SourceDest.class

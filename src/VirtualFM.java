@@ -50,6 +50,7 @@ public class VirtualFM {
 				int randomIndexAssigned = Utils.getHashcodeInRange(input[1], s);
 				// System.out.println(randomIndexAssigned);
 				Integer xorRandWithSourceIP = Utils.covertIPtoInt(input[0]) ^ randomNumbers[randomIndexAssigned];
+				// TODO move geometric hash to left
 				integerFM[Utils.getHashcodeInRange(xorRandWithSourceIP, m)] |= getGeometricHash(input[1]);
 			}
 			FileWriter fw = new FileWriter(new File(fileOut));
@@ -58,9 +59,11 @@ public class VirtualFM {
 			for (int currentFMSketch : integerFM) {
 				totalZCount += countLeadingOnes(currentFMSketch);
 			}
+			double totalSize = m;
+			double totalNoise = (totalSize * Math.pow(totalZCount/totalSize, 2))/phi; 
 			while (iterator.hasNext()) {
 				String source = iterator.next();
-				double estimate = offlineEstimation(source, totalZCount);
+				double estimate = offlineEstimation(source, totalNoise);
 				fw.write(source + "\t" + estimate + "\n");
 			}
 			fw.close();
@@ -87,7 +90,8 @@ public class VirtualFM {
 		return zeroCount;
 	}
 
-	private double offlineEstimation(String source, double totalZCount) {
+	private double offlineEstimation(String source, double totalNoise) {
+		// TODO Wrong
 		double sCardinality = 0;
 		for (int rand : randomNumbers) {
 			sCardinality += countLeadingOnes(Utils.getHashcodeInRange(Utils.covertIPtoInt(source) ^ rand, m));
