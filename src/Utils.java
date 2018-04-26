@@ -1,3 +1,12 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Scanner;
+import java.util.Map.Entry;
+
 public class Utils {
 	public static int covertIPtoInt(String ip) {
 		String[] ipSplit = ip.split("\\.");
@@ -39,17 +48,35 @@ public class Utils {
 		int hashCode = input.hashCode() % maxNum;
 		return hashCode < 0 ? hashCode + maxNum : hashCode;
 	}
-	
+
 	public static int getHashcodeInRange(Long input, int maxNum) {
 		int hashCode = input.hashCode() % maxNum;
 		return hashCode < 0 ? hashCode + maxNum : hashCode;
 	}
-	
+
 	public static long getCombinedSourceDest(String src, String dst) {
 		long srcInt = Utils.covertIPtoInt(src);
 		long dstInt = Utils.covertIPtoInt(dst);
 		srcInt <<= 32;
 		long result = srcInt | dstInt;
 		return result;
+	}
+
+	public static HashMap<String, Integer> readSpreadData() {
+		HashMap<String, Integer> actualValue = new HashMap<>();
+		Scanner sc = null;
+		try {
+			sc = new Scanner(new File("traffic_spread.txt"));
+			while (sc.hasNextLine()) {
+				String s = sc.nextLine().trim().replaceAll("\\s+", " ");
+				String[] input = s.split(" ");
+				actualValue.put(input[0], Integer.parseInt(input[1]));
+			}
+		} catch (FileNotFoundException e) {
+			System.out.println("File with this name can't be found");
+		} finally {
+			sc.close();
+		}
+		return actualValue;
 	}
 }

@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Random;
@@ -28,6 +29,7 @@ public class VirtualFM {
 
 	public void calculateAndOutputSpread(String fileIn, String fileOut) {
 		LinkedHashSet<String> setOfSourceIPs = new LinkedHashSet<>();
+		HashMap<String, Integer> actualValues = Utils.readSpreadData();
 		Scanner sc = null;
 		try {
 			sc = new Scanner(new File(fileIn));
@@ -44,14 +46,10 @@ public class VirtualFM {
 					System.out.println("Input file not in the expected format");
 					return;
 				}
-				// System.out.println(Arrays.toString(input));
 				setOfSourceIPs.add(input[0]);
-				// Recording Online
 				int randomIndexAssigned = Utils.getHashcodeInRange(input[1], s);
-				// System.out.println(randomIndexAssigned);
 				Integer xorRandWithSourceIP = Utils.covertIPtoInt(input[0]) ^ randomNumbers[randomIndexAssigned];
-				// TODO move geometric hash to left
-				integerFM[Utils.getHashcodeInRange(xorRandWithSourceIP, m)] |= getGeometricHash(input[1]);
+				integerFM[Utils.getHashcodeInRange(xorRandWithSourceIP, m)] |= (1 << getGeometricHash(input[1]));
 			}
 			FileWriter fw = new FileWriter(new File(fileOut));
 			Iterator<String> iterator = setOfSourceIPs.iterator();
@@ -60,11 +58,11 @@ public class VirtualFM {
 				totalZCount += countLeadingOnes(currentFMSketch);
 			}
 			double totalSize = m;
-			double totalNoise = (totalSize * Math.pow(totalZCount/totalSize, 2))/phi; 
+			double totalNoise = (Math.pow(totalZCount / totalSize, 2)) / phi;
 			while (iterator.hasNext()) {
 				String source = iterator.next();
-				double estimate = offlineEstimation(source, totalNoise);
-				fw.write(source + "\t" + estimate + "\n");
+				int estimate = offlineEstimation(source, totalNoise);
+				fw.write(source + "\t" + actualValues.get(source) + "\t" + estimate + "\n");
 			}
 			fw.close();
 		} catch (FileNotFoundException e) {
@@ -90,13 +88,13 @@ public class VirtualFM {
 		return zeroCount;
 	}
 
-	private double offlineEstimation(String source, double totalNoise) {
-		// TODO Wrong
+	private int offlineEstimation(String source, double totalNoise) {
 		double sCardinality = 0;
 		for (int rand : randomNumbers) {
 			sCardinality += countLeadingOnes(Utils.getHashcodeInRange(Utils.covertIPtoInt(source) ^ rand, m));
 		}
-		return (double) s * ((Math.pow(totalZCount, 2) - Math.pow(sCardinality, 2)) / phi);
+		int result = (int) (((m * s) / (m - s)) * ((Math.pow(sCardinality / s, 2) / phi) / s - totalNoise / m));
+		return result;
 	}
 
 	private int countLeadingOnes(int currentFMSketch) {
@@ -114,7 +112,7 @@ public class VirtualFM {
 
 	public static void main(String[] args) throws FileNotFoundException {
 		VirtualBitMap t = new VirtualBitMap(1_000_000, 128);
-		t.calculateAndOutputSpread("traffic.txt", "virtualbitmap.txt");
+		t.calculateAndOutputSpread("traffic.txt", "virtualFM.txt");
 	}
 
 }

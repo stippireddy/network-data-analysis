@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -14,6 +15,7 @@ public class TwoLevelHashTablesForSpreadMeasurement {
 		try {
 			sc = new Scanner(new File(fileIn));
 			sc.nextLine();
+			HashMap<String, Integer> actualValues = Utils.readSpreadData();
 			LinkedHashMap<String, HashSet<String>> map = new LinkedHashMap<>();
 			while (sc.hasNextLine()) {
 				String[] input = null;
@@ -32,7 +34,7 @@ public class TwoLevelHashTablesForSpreadMeasurement {
 			}
 			FileWriter fw = new FileWriter(new File(fileOut));
 			for (Entry<String, HashSet<String>> entry : map.entrySet()) {
-				fw.write(entry.getKey() + "\t");
+				fw.write(entry.getKey() + "\t" + actualValues.get(entry.getKey()) + "\t");
 				fw.write(entry.getValue().size() + "\n");
 			}
 			fw.close();
@@ -48,21 +50,6 @@ public class TwoLevelHashTablesForSpreadMeasurement {
 
 	public static void main(String[] args) throws FileNotFoundException {
 		TwoLevelHashTablesForSpreadMeasurement t = new TwoLevelHashTablesForSpreadMeasurement();
-		t.calculateAndOutputSpread("traffic.txt", "trafficSpreadOut.txt");
-		boolean areEqual = true;
-		Scanner sc1 = new Scanner(new File("traffic_spread.txt"));
-		Scanner sc2 = new Scanner(new File("traffic_spread.txt"));
-		while (sc1.hasNextLine()) {
-			if (!sc2.hasNextLine() || !sc1.nextLine().equals(sc2.nextLine())) {
-				areEqual = false;
-				break;
-			}
-		}
-		if (sc2.hasNextLine()) {
-			areEqual = false;
-		}
-		sc1.close();
-		sc2.close();
-		System.out.println(areEqual);
+		t.calculateAndOutputSpread("traffic.txt", "twoLevelHashTables.txt");
 	}
 }

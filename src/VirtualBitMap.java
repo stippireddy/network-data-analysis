@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Random;
@@ -30,6 +31,7 @@ public class VirtualBitMap {
 
 	public void calculateAndOutputSpread(String fileIn, String fileOut) {
 		LinkedHashSet<String> setOfSourceIPs = new LinkedHashSet<>();
+		HashMap<String, Integer> actualValues = Utils.readSpreadData();
 		Scanner sc = null;
 		try {
 			sc = new Scanner(new File(fileIn));
@@ -58,8 +60,8 @@ public class VirtualBitMap {
 			Iterator<String> iterator = setOfSourceIPs.iterator();
 			while (iterator.hasNext()) {
 				String source = iterator.next();
-				double estimate = offlineEstimation(source);
-				fw.write(source + "\t" + estimate + "\n");
+				int estimate = offlineEstimation(source);
+				fw.write(source + "\t"  + actualValues.get(source) + "\t"+ estimate + "\n");
 			}
 			fw.close();
 		} catch (FileNotFoundException e) {
@@ -71,7 +73,7 @@ public class VirtualBitMap {
 		}
 	}
 
-	private double offlineEstimation(String source) {
+	private int offlineEstimation(String source) {
 		double sCardinality = 0;
 		for (int rand : randomNumbers) {
 			if (bitset.get(Utils.getHashcodeInRange(Utils.covertIPtoInt(source) ^ rand, m))) {
@@ -82,11 +84,11 @@ public class VirtualBitMap {
 		double mCardinality = m - bitset.cardinality();
 		double VS = sCardinality / (double) s;
 		double VM = mCardinality / (double) m;
-		return s * (Math.log(VM) - Math.log(VS));
+		return (int) (s * (Math.log(VM) - Math.log(VS)));
 	}
 
 	public static void main(String[] args) throws FileNotFoundException {
-		VirtualBitMap t = new VirtualBitMap(1_000_000_000, 2048);
+		VirtualBitMap t = new VirtualBitMap(4_000_000, 1024);
 		t.calculateAndOutputSpread("traffic.txt", "virtualbitmap.txt");
 	}
 }
