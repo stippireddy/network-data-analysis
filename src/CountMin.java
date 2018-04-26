@@ -43,7 +43,7 @@ public class CountMin {
 					System.out.println("Input file not in the expected format");
 					return;
 				}
-				Long sourceDestination = getCombinedSourceDest(input[0], input[1]);
+				Long sourceDestination = Utils.getCombinedSourceDest(input[0], input[1]);
 				actualData.put(new SourceDest(input[0], input[1]), input[2]);
 				// Recording Online
 				for (int i = 0; i < d; i++) {
@@ -74,16 +74,8 @@ public class CountMin {
 		int result = Integer.MAX_VALUE;
 		for (int i = 0; i < d; i++) {
 			result = Integer.min(result, recorder[i][Utils
-					.getHashcodeInRange(getCombinedSourceDest(source, destination) ^ randomNumbers[i], m)]);
+					.getHashcodeInRange(Utils.getCombinedSourceDest(source, destination) ^ randomNumbers[i], m)]);
 		}
-		return result;
-	}
-
-	private long getCombinedSourceDest(String src, String dst) {
-		long srcInt = Utils.covertIPtoInt(src);
-		long dstInt = Utils.covertIPtoInt(dst);
-		srcInt <<= 32;
-		long result = srcInt | dstInt;
 		return result;
 	}
 

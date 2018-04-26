@@ -44,4 +44,12 @@ public class Utils {
 		int hashCode = input.hashCode() % maxNum;
 		return hashCode < 0 ? hashCode + maxNum : hashCode;
 	}
+	
+	public static long getCombinedSourceDest(String src, String dst) {
+		long srcInt = Utils.covertIPtoInt(src);
+		long dstInt = Utils.covertIPtoInt(dst);
+		srcInt <<= 32;
+		long result = srcInt | dstInt;
+		return result;
+	}
 }
